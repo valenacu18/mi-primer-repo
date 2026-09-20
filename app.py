@@ -34,17 +34,17 @@ if seccion == "Automovilismo (F1)":
     else:
         st.success("✅ Cerebro de F1 conectado y listo para predecir.")
         
-        # Controles de entrada
+        # Controles de entrada con las categorías exactas del entrenamiento
         horas_sim_mensual = st.number_input("Horas de Simulador Mensual", 0, 300, 125, key="f1_horas_sim")
         consistencia = st.slider("Consistencia de Ritmo (0-100)", 0, 100, 95, key="f1_consistencia")
         gestion_neumaticos = st.slider("Gestión de Neumáticos (0-100)", 0, 100, 55, key="f1_gestion")
         tiempo_reaccion = st.number_input("Tiempo de Reacción (ms)", 100.0, 500.0, 150.0, key="f1_reaccion")
         
-        categoria_actual = st.selectbox("Categoría Actual", ["F3", "F2", "F1", "Karting"], key="f1_categoria")
+        categoria_actual = st.selectbox("Categoría Actual", ["F3", "F2", "F1"], key="f1_categoria")
 
         if st.button("🚀 Ejecutar Predicción F1"):
             try:
-                # Construcción del DataFrame adaptado exactamente a los nombres esperados en el entrenamiento
+                # Construcción del DataFrame adaptado exactamente a los nombres esperados en el fit
                 input_data = pd.DataFrame({
                     'Horas_Practica_Mensual': [horas_sim_mensual],
                     'Consistencia_Ritmo_0a100': [consistencia],
@@ -52,8 +52,7 @@ if seccion == "Automovilismo (F1)":
                     'Tiempo_Reaccion_ms': [tiempo_reaccion],
                     'Categoria_Actual_F1': [1 if categoria_actual == "F1" else 0],
                     'Categoria_Actual_F2': [1 if categoria_actual == "F2" else 0],
-                    'Categoria_Actual_F3': [1 if categoria_actual == "F3" else 0],
-                    'Categoria_Actual_Karting': [1 if categoria_actual == "Karting" else 0]
+                    'Categoria_Actual_F3': [1 if categoria_actual == "F3" else 0]
                 })
                 
                 pred = modelo_f1.predict(input_data)
@@ -62,7 +61,7 @@ if seccion == "Automovilismo (F1)":
                 st.success(f"✅ Predicción de rendimiento F1 procesada con éxito.")
                 st.info(f"⏱️ Resultado del modelo: {resultado_pred}")
 
-                # Actualización automática del Dataset Maestro (CSV) con los nombres originales para la tabla
+                # Actualización automática y dinámica del Dataset Maestro (CSV)
                 archivo_csv = "datos_maestros_plataforma.csv"
                 nueva_fila = {
                     'Horas_Simulador_Mensual': horas_sim_mensual,

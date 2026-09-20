@@ -9,15 +9,15 @@ st.set_page_config(page_title="Portal Unificado de Scouting IA", page_icon="🌐
 st.title("🌐 Portal Unificado de Scouting & Analítica de IA")
 st.write("Bienvenido a tu plataforma centralizada de Machine Learning. Selecciona la categoría que deseas evaluar en el menú lateral.")
 
-# Menú lateral optimizado (Sin la sección global separada)
+# Menú lateral optimizado
 seccion = st.sidebar.selectbox("Seleccionar Módulo", ["Automovilismo (F1)", "Básquetbol (NBA)", "Música & Artistas"])
 
 # ==========================================
-# SECCIÓN 1: F1 / AUTOMOVILISMO (CON PREDICCIÓN, GRÁFICA Y TABLA DINÁMICA)
+# SECCIÓN 1: F1 / AUTOMOVILISMO
 # ==========================================
 if seccion == "Automovilismo (F1)":
     st.subheader("🏎️ Módulo de Scouting: F1 & SimRacing")
-    st.write("Calcula el rendimiento por vuelta integrando simulador mensual, consistencia, gestión y tiempo de reacción.")
+    st.write("Calcula el rendimiento por vuelta integrando práctica mensual, consistencia, gestión y tiempo de reacción.")
     
     @st.cache_resource
     def cargar_f1():
@@ -44,13 +44,16 @@ if seccion == "Automovilismo (F1)":
 
         if st.button("🚀 Ejecutar Predicción F1"):
             try:
-                # Construcción del DataFrame para el modelo
+                # Construcción del DataFrame adaptado exactamente a los nombres esperados en el entrenamiento
                 input_data = pd.DataFrame({
-                    'Horas_Simulador_Mensual': [horas_sim_mensual],
+                    'Horas_Practica_Mensual': [horas_sim_mensual],
                     'Consistencia_Ritmo_0a100': [consistencia],
                     'Gestion_Neumaticos_0a100': [gestion_neumaticos],
                     'Tiempo_Reaccion_ms': [tiempo_reaccion],
-                    'Categoria_Actual': [categoria_actual]
+                    'Categoria_Actual_F1': [1 if categoria_actual == "F1" else 0],
+                    'Categoria_Actual_F2': [1 if categoria_actual == "F2" else 0],
+                    'Categoria_Actual_F3': [1 if categoria_actual == "F3" else 0],
+                    'Categoria_Actual_Karting': [1 if categoria_actual == "Karting" else 0]
                 })
                 
                 pred = modelo_f1.predict(input_data)
@@ -59,7 +62,7 @@ if seccion == "Automovilismo (F1)":
                 st.success(f"✅ Predicción de rendimiento F1 procesada con éxito.")
                 st.info(f"⏱️ Resultado del modelo: {resultado_pred}")
 
-                # Actualización automática y dinámica del Dataset Maestro (CSV)
+                # Actualización automática del Dataset Maestro (CSV) con los nombres originales para la tabla
                 archivo_csv = "datos_maestros_plataforma.csv"
                 nueva_fila = {
                     'Horas_Simulador_Mensual': horas_sim_mensual,

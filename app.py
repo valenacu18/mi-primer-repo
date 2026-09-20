@@ -9,11 +9,11 @@ st.set_page_config(page_title="Portal Unificado de Scouting IA", page_icon="🌐
 st.title("🌐 Portal Unificado de Scouting & Analítica de IA")
 st.write("Bienvenido a tu plataforma centralizada de Machine Learning. Selecciona la categoría que deseas evaluar en el menú lateral.")
 
-# Menú de navegación lateral
-seccion = st.sidebar.selectbox("Seleccionar Módulo", ["Automovilismo (F1)", "Básquetbol (NBA)", "Música & Artistas", "Analítica y Reportes Globales"])
+# Menú lateral optimizado (Sin la sección global separada)
+seccion = st.sidebar.selectbox("Seleccionar Módulo", ["Automovilismo (F1)", "Básquetbol (NBA)", "Música & Artistas"])
 
 # ==========================================
-# SECCIÓN 1: F1 / AUTOMOVILISMO (CON GRÁFICAS INCORPORADAS)
+# SECCIÓN 1: F1 / AUTOMOVILISMO (CON PREDICCIÓN, GRÁFICA Y TABLA DINÁMICA)
 # ==========================================
 if seccion == "Automovilismo (F1)":
     st.subheader("🏎️ Módulo de Scouting: F1 & SimRacing")
@@ -32,9 +32,9 @@ if seccion == "Automovilismo (F1)":
     if modelo_f1 is None:
         st.warning("⚠️ No se encontró ningún modelo de F1 en el repositorio. Ejecuta tu script en Colab para generarlo.")
     else:
-        st.success("✅ Cerebro de F1 conectado y listo para predecir[cite: 2].")
+        st.success("✅ Cerebro de F1 conectado y listo para predecir.")
         
-        # Controles exactos tal como en tu captura de pantalla
+        # Controles de entrada
         horas_sim_mensual = st.number_input("Horas de Simulador Mensual", 0, 300, 125, key="f1_horas_sim")
         consistencia = st.slider("Consistencia de Ritmo (0-100)", 0, 100, 95, key="f1_consistencia")
         gestion_neumaticos = st.slider("Gestión de Neumáticos (0-100)", 0, 100, 55, key="f1_gestion")
@@ -44,7 +44,7 @@ if seccion == "Automovilismo (F1)":
 
         if st.button("🚀 Ejecutar Predicción F1"):
             try:
-                # Construcción del DataFrame asegurando que coincida con las variables del modelo
+                # Construcción del DataFrame para el modelo
                 input_data = pd.DataFrame({
                     'Horas_Simulador_Mensual': [horas_sim_mensual],
                     'Consistencia_Ritmo_0a100': [consistencia],
@@ -54,22 +54,57 @@ if seccion == "Automovilismo (F1)":
                 })
                 
                 pred = modelo_f1.predict(input_data)
+                resultado_pred = pred[0]
+                
                 st.success(f"✅ Predicción de rendimiento F1 procesada con éxito.")
-                st.info(f"⏱️ Resultado del modelo: {pred[0]}")
+                st.info(f"⏱️ Resultado del modelo: {resultado_pred}")
+
+                # Actualización automática y dinámica del Dataset Maestro (CSV)
+                archivo_csv = "datos_maestros_plataforma.csv"
+                nueva_fila = {
+                    'Horas_Simulador_Mensual': horas_sim_mensual,
+                    'Consistencia_Ritmo_0a100': consistencia,
+                    'Gestion_Neumaticos_0a100': gestion_neumaticos,
+                    'Tiempo_Reaccion_ms': tiempo_reaccion,
+                    'Categoria_Actual': categoria_actual,
+                    'Prediccion': resultado_pred
+                }
+                
+                if os.path.exists(archivo_csv):
+                    df_maestro = pd.read_csv(archivo_csv)
+                    df_maestro = pd.concat([df_maestro, pd.DataFrame([nueva_fila])], ignore_index=True)
+                else:
+                    df_maestro = pd.DataFrame([nueva_fila])
+                
+                df_maestro.to_csv(archivo_csv, index=False)
+                st.success("💾 ¡Nueva predicción guardada y agregada a la tabla de valores en tiempo real!")
+
             except Exception as e:
                 st.error("⚠️ Ocurrió un error al procesar el modelo de F1:")
                 st.code(str(e), language="text")
 
     # ==========================================
-    # GRÁFICA Y REPORTE INTEGRADO EN AUTOMOVILISMO
+    # ANÁLISIS GRÁFICO INTEGRADO
     # ==========================================
     st.markdown("---")
-    st.subheader("📈 Análisis Gráfico y Reportes de SimRacing")
+    st.subheader("📈 Análisis Gráfico de SimRacing")
     
     if os.path.exists("reporte_rendimiento_avanzado.png"):
         st.image("reporte_rendimiento_avanzado.png", caption="Análisis Comparativo de Simulación y Rendimiento en Pista", use_container_width=True)
     else:
         st.warning("⚠️ No se encontró la imagen `reporte_rendimiento_avanzado.png` en el repositorio.")
+
+    # ==========================================
+    # TABLA DE VALORES / DATASET MAESTRO DINÁMICO
+    # ==========================================
+    st.markdown("---")
+    st.subheader("📊 Tabla de Valores y Registro Maestro")
+    
+    if os.path.exists("datos_maestros_plataforma.csv"):
+        df_maestro = pd.read_csv("datos_maestros_plataforma.csv")
+        st.dataframe(df_maestro, use_container_width=True)
+    else:
+        st.warning("⚠️ Aún no hay registros guardados. Ejecuta tu primera predicción de F1 arriba para poblar la tabla.")
 
 # ==========================================
 # SECCIÓN 2: BÁSQUETBOL (NBA)
@@ -128,16 +163,3 @@ elif seccion == "Básquetbol (NBA)":
 elif seccion == "Música & Artistas":
     st.subheader("🎵 Módulo de Scouting: Música & Redes")
     st.write("Próximamente: Integración de análisis de artistas y métricas de viralidad.")
-
-# ==========================================
-# SECCIÓN 4: ANALÍTICA Y REPORTES GLOBALES
-# ==========================================
-elif seccion == "Analítica y Reportes Globales":
-    st.subheader("📈 Reportes Analíticos y Datos Maestros")
-    st.write("Aquí puedes explorar la tabla de métricas generales de la plataforma.")
-    
-    if os.path.exists("datos_maestros_plataforma.csv"):
-        df_maestro = pd.read_csv("datos_maestros_plataforma.csv")
-        st.dataframe(df_maestro, use_container_width=True)
-    else:
-        st.warning("⚠️ No se encontró el archivo `datos_maestros_plataforma.csv` en el repositorio.")

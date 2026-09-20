@@ -34,7 +34,7 @@ if seccion == "Automovilismo (F1)":
     else:
         st.success("✅ Cerebro de F1 conectado y listo para predecir.")
         
-        # Controles de entrada con las categorías exactas del entrenamiento
+        # Controles de entrada
         horas_sim_mensual = st.number_input("Horas de Simulador Mensual", 0, 300, 125, key="f1_horas_sim")
         consistencia = st.slider("Consistencia de Ritmo (0-100)", 0, 100, 95, key="f1_consistencia")
         gestion_neumaticos = st.slider("Gestión de Neumáticos (0-100)", 0, 100, 55, key="f1_gestion")
@@ -44,7 +44,7 @@ if seccion == "Automovilismo (F1)":
 
         if st.button("🚀 Ejecutar Predicción F1"):
             try:
-                # Construcción del DataFrame adaptado exactamente a los nombres esperados en el fit
+                # 1. Construcción inicial de las variables
                 input_data = pd.DataFrame({
                     'Horas_Practica_Mensual': [horas_sim_mensual],
                     'Consistencia_Ritmo_0a100': [consistencia],
@@ -55,6 +55,11 @@ if seccion == "Automovilismo (F1)":
                     'Categoria_Actual_F3': [1 if categoria_actual == "F3" else 0]
                 })
                 
+                # 2. Si el modelo guardó los nombres de las columnas exactas en 'feature_names_in_', 
+                # las reordenamos de forma estricta para asegurar el orden exacto del fit.
+                if hasattr(modelo_f1, "feature_names_in_"):
+                    input_data = input_data[modelo_f1.feature_names_in_]
+
                 pred = modelo_f1.predict(input_data)
                 resultado_pred = pred[0]
                 
@@ -146,6 +151,9 @@ elif seccion == "Básquetbol (NBA)":
                     'Eficiencia_Defensiva': [defensa]
                 })
                 
+                if hasattr(modelo_nba, "feature_names_in_"):
+                    datos_nba = datos_nba[modelo_nba.feature_names_in_]
+
                 pred = modelo_nba.predict(datos_nba)
                 prob = modelo_nba.predict_proba(datos_nba)[0][1] * 100
                 

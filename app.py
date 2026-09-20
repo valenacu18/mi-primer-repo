@@ -13,11 +13,11 @@ st.write("Bienvenido a tu plataforma centralizada de Machine Learning. Seleccion
 seccion = st.sidebar.selectbox("Seleccionar Módulo", ["Automovilismo (F1)", "Básquetbol (NBA)", "Música & Artistas", "Analítica y Reportes Globales"])
 
 # ==========================================
-# SECCIÓN 1: F1 / AUTOMOVILISMO (COMPLETA CON SIMULADOR Y REACCIÓN)
+# SECCIÓN 1: F1 / AUTOMOVILISMO (COMPLETA CON TODOS LOS PARÁMETROS)
 # ==========================================
 if seccion == "Automovilismo (F1)":
-    st.subheader("🏎️ Módulo Avanzado de Scouting: F1 & SimRacing")
-    st.write("Calcula el rendimiento por vuelta integrando desgaste, combustible, experiencia en simulador y tiempo de reacción.")
+    st.subheader("🏎️ Módulo de Scouting: F1 & SimRacing")
+    st.write("Calcula el rendimiento por vuelta integrando simulador mensual, consistencia, gestión y tiempo de reacción.")
     
     @st.cache_resource
     def cargar_f1():
@@ -34,29 +34,28 @@ if seccion == "Automovilismo (F1)":
     else:
         st.success("✅ Cerebro de F1 conectado y listo para predecir.")
         
-        # Controles completos de F1 y SimRacing
-        col_f1_1, col_f1_2 = st.columns(2)
-        with col_f1_1:
-            desgaste = st.slider("Desgaste de Neumáticos (%)", 0, 100, 85, key="f1_desgaste")
-            horas_sim = st.number_input("Horas en Simulador (Semanal)", 0, 50, 15, key="f1_horas_sim")
-        with col_f1_2:
-            carga_combustible = st.slider("Carga de Combustible (kg)", 0, 100, 30, key="f1_combustible")
-            tiempo_reaccion = st.number_input("Tiempo de Reacción (ms)", 150.0, 400.0, 210.0, key="f1_reaccion")
+        # Controles exactos tal como en tu captura de pantalla
+        horas_sim_mensual = st.number_input("Horas de Simulador Mensual", 0, 300, 125, key="f1_horas_sim")
+        consistencia = st.slider("Consistencia de Ritmo (0-100)", 0, 100, 95, key="f1_consistencia")
+        gestion_neumaticos = st.slider("Gestión de Neumáticos (0-100)", 0, 100, 55, key="f1_gestion")
+        tiempo_reaccion = st.number_input("Tiempo de Reacción (ms)", 100.0, 500.0, 150.0, key="f1_reaccion")
+        
+        categoria_actual = st.selectbox("Categoría Actual", ["F3", "F2", "F1", "Karting"], key="f1_categoria")
 
-        if st.button("🚀 Calcular Estrategia y Rendimiento F1"):
+        if st.button("🚀 Ejecutar Predicción F1"):
             try:
-                if hasattr(modelo_f1, "predict") and not hasattr(modelo_f1, "classes_"):
-                    pred_tiempo = modelo_f1.predict(np.array([[desgaste]]))[0]
-                    
-                    # Ajuste dinámico con los parámetros de simulador y reflejos
-                    bono_sim = horas_sim * 0.01
-                    penalizacion_reaccion = (tiempo_reaccion - 200) * 0.005
-                    tiempo_final = pred_tiempo + (carga_combustible * 0.02) - bono_sim + penalizacion_reaccion
-                    
-                    st.info(f"⏱️ Tiempo estimado de vuelta: **{tiempo_final:.2f} segundos**")
-                    st.metric(label="Degradación Proyectada", value=f"{desgaste}%", delta=f"+{(desgaste*0.1):.1f}s por desgaste")
-                else:
-                    st.success("✅ Simulación de telemetría procesada correctamente.")
+                # Construcción del DataFrame asegurando que coincida con las variables del modelo
+                input_data = pd.DataFrame({
+                    'Horas_Simulador_Mensual': [horas_sim_mensual],
+                    'Consistencia_Ritmo_0a100': [consistencia],
+                    'Gestion_Neumaticos_0a100': [gestion_neumaticos],
+                    'Tiempo_Reaccion_ms': [tiempo_reaccion],
+                    'Categoria_Actual': [categoria_actual]
+                })
+                
+                pred = modelo_f1.predict(input_data)
+                st.success(f"✅ Predicción de rendimiento F1 procesada con éxito.")
+                st.info(f"⏱️ Resultado del modelo: {pred[0]}")
             except Exception as e:
                 st.error("⚠️ Ocurrió un error al procesar el modelo de F1:")
                 st.code(str(e), language="text")

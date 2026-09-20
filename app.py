@@ -3,23 +3,24 @@ import pandas as pd
 import joblib
 import os
 
-st.set_page_config(page_title="Portal Multideporte de Scouting IA", page_icon="🏆", layout="centered")
+st.set_page_config(page_title="Portal Unificado de Scouting IA", page_icon="🌐", layout="centered")
 
-st.title("🏆 Portal Multideporte de Scouting IA")
-st.write("Selecciona la disciplina deportiva que deseas evaluar con los modelos de Machine Learning en producción.")
+st.title("🌐 Portal Unificado de Scouting & Analítica de IA")
+st.write("Bienvenido a tu plataforma centralizada de Machine Learning. Selecciona la categoría que deseas evaluar en el menú lateral.")
 
-# Menú desplegable para elegir el deporte
-deporte = st.selectbox("Selecciona el modelo a utilizar:", ["Automovilismo (F1)", "Básquetbol (NBA)"])
+# Menú de navegación lateral
+seccion = st.sidebar.selectbox("Seleccionar Modelo", ["Automovilismo (F1)", "Básquetbol (NBA)", "Música & Artistas"])
 
-if deporte == "Automovilismo (F1)":
+# ==========================================
+# SECCIÓN 1: F1 / AUTOMOVILISMO
+# ==========================================
+if seccion == "Automovilismo (F1)":
     st.subheader("🏎️ Módulo de Scouting: F1 & SimRacing")
     
-    # Cargar modelo de F1
     @st.cache_resource
     def cargar_f1():
-        archivo = "cerebro_f1_v1.pkl"
-        if os.path.exists(archivo):
-            return joblib.load(archivo)
+        if os.path.exists("cerebro_f1_v1.pkl"):
+            return joblib.load("cerebro_f1_v1.pkl")
         return None
 
     modelo_f1 = cargar_f1()
@@ -27,17 +28,17 @@ if deporte == "Automovilismo (F1)":
     if modelo_f1 is None:
         st.warning("⚠️ No se encontró el archivo `cerebro_f1_v1.pkl` en el repositorio.")
     else:
-        st.success("✅ Cerebro de F1 conectado con éxito.")
+        st.success("✅ Cerebro de F1 conectado.")
         
         col1, col2 = st.columns(2)
         with col1:
-            horas = st.number_input("Horas de Simulador Mensual", 10, 300, 150)
-            neumaticos = st.slider("Gestión de Neumáticos (0-100)", 0, 100, 85)
+            horas = st.number_input("Horas de Simulador Mensual", 10, 300, 150, key="f1_h")
+            neumaticos = st.slider("Gestión de Neumáticos (0-100)", 0, 100, 85, key="f1_n")
         with col2:
-            consistencia = st.slider("Consistencia de Ritmo (0-100)", 0, 100, 90)
-            reflejos = st.number_input("Tiempo de Reacción (ms)", 100, 300, 180)
+            consistencia = st.slider("Consistencia de Ritmo (0-100)", 0, 100, 90, key="f1_c")
+            reflejos = st.number_input("Tiempo de Reacción (ms)", 100, 300, 180, key="f1_r")
 
-        cat = st.selectbox("Categoría Actual", ["F3", "F2", "F1"])
+        cat = st.selectbox("Categoría Actual", ["F3", "F2", "F1"], key="f1_cat")
 
         if st.button("🚀 Ejecutar Predicción F1"):
             datos = pd.DataFrame({
@@ -60,21 +61,70 @@ if deporte == "Automovilismo (F1)":
             except Exception as e:
                 st.error(f"Error al procesar: {e}")
 
-elif deporte == "Básquetbol (NBA)":
-    st.subheader("🏀 Módulo de Scouting: NBA")
+# ==========================================
+# SECCIÓN 2: MÚSICA Y ARTISTAS
+# ==========================================
+elif seccion == "Música & Artistas":
+    st.subheader("🎵 Módulo de Scouting: Música & Redes")
     
-    # Búsqueda dinámica del archivo de NBA subido
     @st.cache_resource
-    def cargar_nba():
+    def cargar_musica():
         for f in os.listdir("."):
-            if "nba" in f.lower() and f.endswith(".pkl"):
-                return joblib.load(f)
+            if "musica" in f.lower() or "artistas" in f.lower() or f.endswith(".pkl"):
+                # Intentamos cargar el modelo que tenga las variables de redes
+                try:
+                    m = joblib.load(f)
+                    if hasattr(m, "feature_names_in_") and any("Instagram" in col for col in m.feature_names_in_):
+                        return m
+                except:
+                    continue
         return None
 
-    modelo_nba = cargar_nba()
+    modelo_musica = cargar_musica()
 
-    if modelo_nba is None:
-        st.warning("⚠️ No se encontró ningún archivo `.pkl` de NBA en el repositorio. Asegúrate de que su nombre incluya 'nba'.")
+    if modelo_musica is None:
+        st.warning("⚠️ No se detectó un modelo con las variables de música/redes sociales en el repositorio.")
     else:
-        st.success("✅ Cerebro de NBA conectado con éxito.")
-        st.write("¡El modelo de la NBA está listo para recibir estadísticas de jugadores y evaluar su proyección en la liga!")
+        st.success("✅ Cerebro de Música conectado.")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            instagram = st.number_input("Interacciones en Instagram", 0, 1000000, 50000)
+            presupuesto = st.number_input("Presupuesto USD", 0, 50000, 5000)
+            soundcloud = st.number_input("SoundCloud Plays", 0, 500000, 20000)
+        with col2:
+            tiktok = st.number_input("Videos en TikTok", 0, 10000, 150)
+            twitter = st.number_input("Menciones en Twitter", 0, 50000, 1000)
+
+        if st.button("🚀 Evaluar Potencial Musical"):
+            # Creamos un DataFrame con las columnas exactas que el modelo de música espera
+            datos_musica = pd.DataFrame(columns=modelo_musica.feature_names_in_)
+            # Rellenamos por defecto con ceros y actualizamos los valores ingresados
+            datos_musica.loc[0] = 0
+            
+            # Asignamos valores si existen en las columnas del modelo
+            for col in datos_musica.columns:
+                col_lower = col.lower()
+                if "instagram" in col_lower: datos_musica.loc[0, col] = instagram
+                elif "presupuesto" in col_lower: datos_musica.loc[0, col] = presupuesto
+                elif "soundcloud" in col_lower: datos_musica.loc[0, col] = soundcloud
+                elif "tiktok" in col_lower: datos_musica.loc[0, col] = tiktok
+                elif "twitter" in col_lower: datos_musica.loc[0, col] = twitter
+
+            try:
+                pred = modelo_musica.predict(datos_musica)
+                prob = modelo_musica.predict_proba(datos_musica)[0][1] * 100
+                if pred[0] == 1:
+                    st.success(f"🌟 ¡HIT POTENCIAL EN TENDENCIA! (Probabilidad: {prob:.1f}%)")
+                    st.balloons()
+                else:
+                    st.error(f"⚠️ DESARROLLO ARTÍSTICO REQUERIDO (Probabilidad: {prob:.1f}%)")
+            except Exception as e:
+                st.error(f"Error al procesar: {e}")
+
+# ==========================================
+# SECCIÓN 3: NBA / BÁSQUETBOL
+# ==========================================
+elif seccion == "Básquetbol (NBA)":
+    st.subheader("🏀 Módulo de Scouting: NBA")
+    st.write("Próximamente: Configuración de estadísticas de franquicia y rendimiento de jugadores de la NBA.")

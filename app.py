@@ -41,25 +41,30 @@ if seccion == "Automovilismo (F1)":
         cat = st.selectbox("Categoría Actual", ["F3", "F2", "F1"], key="f1_cat")
 
         if st.button("🚀 Ejecutar Predicción F1"):
-            datos = pd.DataFrame({
-                'Horas_Practica_Mensual': [horas],
-                'Gestion_Neumaticos_0a100': [neumaticos],
-                'Consistencia_Ritmo_0a100': [consistencia],
-                'Tiempo_Reaccion_ms': [reflejos],
-                'Categoria_Actual_F1': [1 if cat == "F1" else 0],
-                'Categoria_Actual_F2': [1 if cat == "F2" else 0],
-                'Categoria_Actual_F3': [1 if cat == "F3" else 0]
-            })
             try:
+                datos = pd.DataFrame({
+                    'Horas_Practica_Mensual': [horas],
+                    'Gestion_Neumaticos_0a100': [neumaticos],
+                    'Consistencia_Ritmo_0a100': [consistencia],
+                    'Tiempo_Reaccion_ms': [reflejos],
+                    'Categoria_Actual_F1': [1 if cat == "F1" else 0],
+                    'Categoria_Actual_F2': [1 if cat == "F2" else 0],
+                    'Categoria_Actual_F3': [1 if cat == "F3" else 0]
+                })
+                
                 pred = modelo_f1.predict(datos)
                 prob = modelo_f1.predict_proba(datos)[0][1] * 100
+                
                 if pred[0] == 1:
                     st.success(f"🌟 ¡APROBADO PARA ASIENTO TOP! (Probabilidad: {prob:.1f}%)")
                     st.balloons()
                 else:
                     st.error(f"⚠️ AÚN EN DESARROLLO (Probabilidad: {prob:.1f}%)")
+                    
             except Exception as e:
-                st.error(f"Error al procesar: {e}")
+                st.error("⚠️ Ocurrió un error al procesar el modelo de F1.")
+                st.write("Código del error exacto para depuración:")
+                st.exception(e)
 
 # ==========================================
 # SECCIÓN 2: MÚSICA Y ARTISTAS
@@ -71,7 +76,6 @@ elif seccion == "Música & Artistas":
     def cargar_musica():
         for f in os.listdir("."):
             if "musica" in f.lower() or "artistas" in f.lower() or f.endswith(".pkl"):
-                # Intentamos cargar el modelo que tenga las variables de redes
                 try:
                     m = joblib.load(f)
                     if hasattr(m, "feature_names_in_") and any("Instagram" in col for col in m.feature_names_in_):
@@ -89,38 +93,39 @@ elif seccion == "Música & Artistas":
         
         col1, col2 = st.columns(2)
         with col1:
-            instagram = st.number_input("Interacciones en Instagram", 0, 1000000, 50000)
-            presupuesto = st.number_input("Presupuesto USD", 0, 50000, 5000)
-            soundcloud = st.number_input("SoundCloud Plays", 0, 500000, 20000)
+            instagram = st.number_input("Interacciones en Instagram", 0, 1000000, 50000, key="m_ig")
+            presupuesto = st.number_input("Presupuesto USD", 0, 50000, 5000, key="m_pres")
+            soundcloud = st.number_input("SoundCloud Plays", 0, 500000, 20000, key="m_sc")
         with col2:
-            tiktok = st.number_input("Videos en TikTok", 0, 10000, 150)
-            twitter = st.number_input("Menciones en Twitter", 0, 50000, 1000)
+            tiktok = st.number_input("Videos en TikTok", 0, 10000, 150, key="m_tk")
+            twitter = st.number_input("Menciones en Twitter", 0, 50000, 1000, key="m_tw")
 
         if st.button("🚀 Evaluar Potencial Musical"):
-            # Creamos un DataFrame con las columnas exactas que el modelo de música espera
-            datos_musica = pd.DataFrame(columns=modelo_musica.feature_names_in_)
-            # Rellenamos por defecto con ceros y actualizamos los valores ingresados
-            datos_musica.loc[0] = 0
-            
-            # Asignamos valores si existen en las columnas del modelo
-            for col in datos_musica.columns:
-                col_lower = col.lower()
-                if "instagram" in col_lower: datos_musica.loc[0, col] = instagram
-                elif "presupuesto" in col_lower: datos_musica.loc[0, col] = presupuesto
-                elif "soundcloud" in col_lower: datos_musica.loc[0, col] = soundcloud
-                elif "tiktok" in col_lower: datos_musica.loc[0, col] = tiktok
-                elif "twitter" in col_lower: datos_musica.loc[0, col] = twitter
-
             try:
+                datos_musica = pd.DataFrame(columns=modelo_musica.feature_names_in_)
+                datos_musica.loc[0] = 0
+                
+                for col in datos_musica.columns:
+                    col_lower = col.lower()
+                    if "instagram" in col_lower: datos_musica.loc[0, col] = instagram
+                    elif "presupuesto" in col_lower: datos_musica.loc[0, col] = presupuesto
+                    elif "soundcloud" in col_lower: datos_musica.loc[0, col] = soundcloud
+                    elif "tiktok" in col_lower: datos_musica.loc[0, col] = tiktok
+                    elif "twitter" in col_lower: datos_musica.loc[0, col] = twitter
+
                 pred = modelo_musica.predict(datos_musica)
                 prob = modelo_musica.predict_proba(datos_musica)[0][1] * 100
+                
                 if pred[0] == 1:
                     st.success(f"🌟 ¡HIT POTENCIAL EN TENDENCIA! (Probabilidad: {prob:.1f}%)")
                     st.balloons()
                 else:
                     st.error(f"⚠️ DESARROLLO ARTÍSTICO REQUERIDO (Probabilidad: {prob:.1f}%)")
+                    
             except Exception as e:
-                st.error(f"Error al procesar: {e}")
+                st.error("⚠️ Ocurrió un error al procesar el modelo de música.")
+                st.write("Código del error exacto para depuración:")
+                st.exception(e)
 
 # ==========================================
 # SECCIÓN 3: NBA / BÁSQUETBOL
@@ -128,14 +133,3 @@ elif seccion == "Música & Artistas":
 elif seccion == "Básquetbol (NBA)":
     st.subheader("🏀 Módulo de Scouting: NBA")
     st.write("Próximamente: Configuración de estadísticas de franquicia y rendimiento de jugadores de la NBA.")
-  try:
-            # Aquí va tu código de predicción
-            pred = modelo_f1.predict(datos)
-            prob = modelo_f1.predict_proba(datos)[0][1] * 100
-            st.success(f"¡Predicción exitosa! Probabilidad: {prob:.1f}%")
-            
-        except Exception as e:
-            # ESTO ES LO NUEVO: Muestra un cuadro rojo con el error exacto y técnico
-            st.error("⚠️ Ocurrió un error al procesar el modelo.")
-            st.write("Copia este código de error o envíame una captura para solucionarlo:")
-            st.exception(e) # Esto despliega la traza técnica completa (Traceback)  

@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 import os
+import numpy as np
 
 st.set_page_config(page_title="Portal Unificado de Scouting IA", page_icon="🌐", layout="centered")
 
@@ -12,10 +13,11 @@ st.write("Bienvenido a tu plataforma centralizada de Machine Learning. Seleccion
 seccion = st.sidebar.selectbox("Seleccionar Módulo", ["Automovilismo (F1)", "Básquetbol (NBA)", "Música & Artistas", "Analítica y Reportes Globales"])
 
 # ==========================================
-# SECCIÓN 1: F1 / AUTOMOVILISMO
+# SECCIÓN 1: F1 / AUTOMOVILISMO (AMPLIADA)
 # ==========================================
 if seccion == "Automovilismo (F1)":
-    st.subheader("🏎️ Módulo de Scouting: F1 & SimRacing")
+    st.subheader("🏎️ Módulo Avanzado de Scouting: F1 & SimRacing")
+    st.write("Calcula el impacto del desgaste y la telemetría en el rendimiento por vuelta utilizando Machine Learning.")
     
     @st.cache_resource
     def cargar_f1():
@@ -28,19 +30,25 @@ if seccion == "Automovilismo (F1)":
     modelo_f1 = cargar_f1()
 
     if modelo_f1 is None:
-        st.warning("⚠️ No se encontró ningún modelo de F1 en el repositorio.")
+        st.warning("⚠️ No se encontró ningún modelo de F1 en el repositorio. Ejecuta tu script en Colab para generarlo.")
     else:
-        st.success("✅ Cerebro de F1 conectado con éxito.")
+        st.success("✅ Cerebro de F1 conectado y listo para predecir.")
         
-        desgaste = st.slider("Desgaste de Neumáticos (%)", 0, 100, 85, key="f1_desgaste")
+        col_f1_1, col_f1_2 = st.columns(2)
+        with col_f1_1:
+            desgaste = st.slider("Desgaste de Neumáticos (%)", 0, 100, 85, key="f1_desgaste")
+        with col_f1_2:
+            carga_combustible = st.slider("Carga de Combustible (kg)", 0, 100, 30, key="f1_combustible")
 
-        if st.button("🚀 Calcular Estrategia y Desgaste"):
+        if st.button("🚀 Calcular Estrategia de Vuelta"):
             try:
-                # Si usa el modelo optimizado de regresión lineal por desgaste
                 if hasattr(modelo_f1, "predict") and not hasattr(modelo_f1, "classes_"):
-                    import numpy as np
                     pred_tiempo = modelo_f1.predict(np.array([[desgaste]]))[0]
-                    st.info(f"⏱️ Tiempo de vuelta estimado con {desgaste}% de desgaste: **{pred_tiempo:.2f} segundos**")
+                    # Ajuste leve simulado considerando el combustible
+                    tiempo_final = pred_tiempo + (carga_combustible * 0.02)
+                    
+                    st.info(f"⏱️ Tiempo estimado de vuelta: **{tiempo_final:.2f} segundos**")
+                    st.metric(label="Degradación Proyectada", value=f"{desgaste}%", delta=f"+{(desgaste*0.1):.1f}s por desgaste")
                 else:
                     st.success("✅ Simulación de telemetría procesada correctamente.")
             except Exception as e:
@@ -112,7 +120,6 @@ elif seccion == "Analítica y Reportes Globales":
     st.subheader("📈 Reportes Analíticos y Datos Maestros")
     st.write("Aquí puedes visualizar el reporte gráfico generado automáticamente desde Google Colab y explorar la tabla de métricas.")
     
-    # Mostrar la imagen del reporte si existe
     if os.path.exists("reporte_rendimiento_avanzado.png"):
         st.image("reporte_rendimiento_avanzado.png", caption="Análisis Comparativo de Simulación y Rendimiento Deportivo", use_container_width=True)
     else:
@@ -121,7 +128,6 @@ elif seccion == "Analítica y Reportes Globales":
     st.markdown("---")
     st.markdown("### 📊 Dataset Maestro de la Plataforma")
     
-    # Mostrar el CSV si existe
     if os.path.exists("datos_maestros_plataforma.csv"):
         df_maestro = pd.read_csv("datos_maestros_plataforma.csv")
         st.dataframe(df_maestro, use_container_width=True)

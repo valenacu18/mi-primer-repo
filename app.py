@@ -128,3 +128,14 @@ elif seccion == "Música & Artistas":
 elif seccion == "Básquetbol (NBA)":
     st.subheader("🏀 Módulo de Scouting: NBA")
     st.write("Próximamente: Configuración de estadísticas de franquicia y rendimiento de jugadores de la NBA.")
+  try:
+            # Aquí va tu código de predicción
+            pred = modelo_f1.predict(datos)
+            prob = modelo_f1.predict_proba(datos)[0][1] * 100
+            st.success(f"¡Predicción exitosa! Probabilidad: {prob:.1f}%")
+            
+        except Exception as e:
+            # ESTO ES LO NUEVO: Muestra un cuadro rojo con el error exacto y técnico
+            st.error("⚠️ Ocurrió un error al procesar el modelo.")
+            st.write("Copia este código de error o envíame una captura para solucionarlo:")
+            st.exception(e) # Esto despliega la traza técnica completa (Traceback)  

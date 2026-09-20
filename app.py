@@ -13,11 +13,11 @@ st.write("Bienvenido a tu plataforma centralizada de Machine Learning. Seleccion
 seccion = st.sidebar.selectbox("Seleccionar Módulo", ["Automovilismo (F1)", "Básquetbol (NBA)", "Música & Artistas", "Analítica y Reportes Globales"])
 
 # ==========================================
-# SECCIÓN 1: F1 / AUTOMOVILISMO (AMPLIADA)
+# SECCIÓN 1: F1 / AUTOMOVILISMO (COMPLETA CON SIMULADOR Y REACCIÓN)
 # ==========================================
 if seccion == "Automovilismo (F1)":
     st.subheader("🏎️ Módulo Avanzado de Scouting: F1 & SimRacing")
-    st.write("Calcula el impacto del desgaste y la telemetría en el rendimiento por vuelta utilizando Machine Learning.")
+    st.write("Calcula el rendimiento por vuelta integrando desgaste, combustible, experiencia en simulador y tiempo de reacción.")
     
     @st.cache_resource
     def cargar_f1():
@@ -34,18 +34,24 @@ if seccion == "Automovilismo (F1)":
     else:
         st.success("✅ Cerebro de F1 conectado y listo para predecir.")
         
+        # Controles completos de F1 y SimRacing
         col_f1_1, col_f1_2 = st.columns(2)
         with col_f1_1:
             desgaste = st.slider("Desgaste de Neumáticos (%)", 0, 100, 85, key="f1_desgaste")
+            horas_sim = st.number_input("Horas en Simulador (Semanal)", 0, 50, 15, key="f1_horas_sim")
         with col_f1_2:
             carga_combustible = st.slider("Carga de Combustible (kg)", 0, 100, 30, key="f1_combustible")
+            tiempo_reaccion = st.number_input("Tiempo de Reacción (ms)", 150.0, 400.0, 210.0, key="f1_reaccion")
 
-        if st.button("🚀 Calcular Estrategia de Vuelta"):
+        if st.button("🚀 Calcular Estrategia y Rendimiento F1"):
             try:
                 if hasattr(modelo_f1, "predict") and not hasattr(modelo_f1, "classes_"):
                     pred_tiempo = modelo_f1.predict(np.array([[desgaste]]))[0]
-                    # Ajuste leve simulado considerando el combustible
-                    tiempo_final = pred_tiempo + (carga_combustible * 0.02)
+                    
+                    # Ajuste dinámico con los parámetros de simulador y reflejos
+                    bono_sim = horas_sim * 0.01
+                    penalizacion_reaccion = (tiempo_reaccion - 200) * 0.005
+                    tiempo_final = pred_tiempo + (carga_combustible * 0.02) - bono_sim + penalizacion_reaccion
                     
                     st.info(f"⏱️ Tiempo estimado de vuelta: **{tiempo_final:.2f} segundos**")
                     st.metric(label="Degradación Proyectada", value=f"{desgaste}%", delta=f"+{(desgaste*0.1):.1f}s por desgaste")

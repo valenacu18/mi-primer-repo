@@ -13,7 +13,7 @@ st.write("Bienvenido a tu plataforma centralizada de Machine Learning. Seleccion
 seccion = st.sidebar.selectbox("Seleccionar Módulo", ["Automovilismo (F1)", "Básquetbol (NBA)", "Música & Artistas", "Analítica y Reportes Globales"])
 
 # ==========================================
-# SECCIÓN 1: F1 / AUTOMOVILISMO (COMPLETA CON TODOS LOS PARÁMETROS)
+# SECCIÓN 1: F1 / AUTOMOVILISMO (CON GRÁFICAS INCORPORADAS)
 # ==========================================
 if seccion == "Automovilismo (F1)":
     st.subheader("🏎️ Módulo de Scouting: F1 & SimRacing")
@@ -32,7 +32,7 @@ if seccion == "Automovilismo (F1)":
     if modelo_f1 is None:
         st.warning("⚠️ No se encontró ningún modelo de F1 en el repositorio. Ejecuta tu script en Colab para generarlo.")
     else:
-        st.success("✅ Cerebro de F1 conectado y listo para predecir.")
+        st.success("✅ Cerebro de F1 conectado y listo para predecir[cite: 2].")
         
         # Controles exactos tal como en tu captura de pantalla
         horas_sim_mensual = st.number_input("Horas de Simulador Mensual", 0, 300, 125, key="f1_horas_sim")
@@ -59,6 +59,17 @@ if seccion == "Automovilismo (F1)":
             except Exception as e:
                 st.error("⚠️ Ocurrió un error al procesar el modelo de F1:")
                 st.code(str(e), language="text")
+
+    # ==========================================
+    # GRÁFICA Y REPORTE INTEGRADO EN AUTOMOVILISMO
+    # ==========================================
+    st.markdown("---")
+    st.subheader("📈 Análisis Gráfico y Reportes de SimRacing")
+    
+    if os.path.exists("reporte_rendimiento_avanzado.png"):
+        st.image("reporte_rendimiento_avanzado.png", caption="Análisis Comparativo de Simulación y Rendimiento en Pista", use_container_width=True)
+    else:
+        st.warning("⚠️ No se encontró la imagen `reporte_rendimiento_avanzado.png` en el repositorio.")
 
 # ==========================================
 # SECCIÓN 2: BÁSQUETBOL (NBA)
@@ -123,15 +134,7 @@ elif seccion == "Música & Artistas":
 # ==========================================
 elif seccion == "Analítica y Reportes Globales":
     st.subheader("📈 Reportes Analíticos y Datos Maestros")
-    st.write("Aquí puedes visualizar el reporte gráfico generado automáticamente desde Google Colab y explorar la tabla de métricas.")
-    
-    if os.path.exists("reporte_rendimiento_avanzado.png"):
-        st.image("reporte_rendimiento_avanzado.png", caption="Análisis Comparativo de Simulación y Rendimiento Deportivo", use_container_width=True)
-    else:
-        st.warning("⚠️ No se encontró la imagen `reporte_rendimiento_avanzado.png` en el repositorio.")
-        
-    st.markdown("---")
-    st.markdown("### 📊 Dataset Maestro de la Plataforma")
+    st.write("Aquí puedes explorar la tabla de métricas generales de la plataforma.")
     
     if os.path.exists("datos_maestros_plataforma.csv"):
         df_maestro = pd.read_csv("datos_maestros_plataforma.csv")

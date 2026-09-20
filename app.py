@@ -55,10 +55,12 @@ if seccion == "Automovilismo (F1)":
                     'Categoria_Actual_F3': [1 if categoria_actual == "F3" else 0]
                 })
                 
-                # 2. Si el modelo guardó los nombres de las columnas exactas en 'feature_names_in_', 
-                # las reordenamos de forma estricta para asegurar el orden exacto del fit.
+                # 2. Reordenamiento estricto según las características del modelo
                 if hasattr(modelo_f1, "feature_names_in_"):
                     input_data = input_data[modelo_f1.feature_names_in_]
+
+                # Depuración visual: muestra qué datos exactos procesó el modelo
+                st.write("🔍 **Datos enviados al modelo:**", input_data)
 
                 pred = modelo_f1.predict(input_data)
                 resultado_pred = pred[0]

@@ -62,9 +62,9 @@ if seccion == "Automovilismo (F1)":
                     st.error(f"⚠️ AÚN EN DESARROLLO (Probabilidad: {prob:.1f}%)")
                     
             except Exception as e:
-                st.error("⚠️ Ocurrió un error al procesar el modelo de F1.")
-                st.write("Código del error exacto para depuración:")
-                st.exception(e)
+                st.error("⚠️ Ocurrió un error al procesar el modelo de F1. Usa el botón superior derecho de la caja de abajo para copiar el error exacto:")
+                # Muestra el texto del error en un bloque con botón de copia integrado de Streamlit
+                st.code(str(e), language="text")
 
 # ==========================================
 # SECCIÓN 2: MÚSICA Y ARTISTAS
@@ -123,9 +123,8 @@ elif seccion == "Música & Artistas":
                     st.error(f"⚠️ DESARROLLO ARTÍSTICO REQUERIDO (Probabilidad: {prob:.1f}%)")
                     
             except Exception as e:
-                st.error("⚠️ Ocurrió un error al procesar el modelo de música.")
-                st.write("Código del error exacto para depuración:")
-                st.exception(e)
+                st.error("⚠️ Ocurrió un error al procesar el modelo de música. Usa el botón superior derecho para copiar el error:")
+                st.code(str(e), language="text")
 
 # ==========================================
 # SECCIÓN 3: NBA / BÁSQUETBOL

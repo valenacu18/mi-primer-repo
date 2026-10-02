@@ -21,18 +21,17 @@ if seccion == "Automovilismo (F1)":
     
     @st.cache_resource
     def cargar_f1():
+        # Carga exclusivamente el modelo optimizado de 7 variables para evitar conflictos
         if os.path.exists("cerebro_f1_optimizado.pkl"):
             return joblib.load("cerebro_f1_optimizado.pkl")
-        elif os.path.exists("cerebro_f1_v1.pkl"):
-            return joblib.load("cerebro_f1_v1.pkl")
         return None
 
     modelo_f1 = cargar_f1()
 
     if modelo_f1 is None:
-        st.warning("⚠️ No se encontró ningún modelo de F1 en el repositorio. Ejecuta tu script en Colab para generarlo.")
+        st.warning("⚠️ No se encontró el archivo 'cerebro_f1_optimizado.pkl' en el repositorio. Sube el modelo generado en Colab.")
     else:
-        st.success("✅ Cerebro de F1 conectado y listo para predecir.")
+        st.success("✅ Cerebro de F1 (Optimizado) conectado y listo para predecir.")
         
         # Controles de entrada
         horas_sim_mensual = st.number_input("Horas de Simulador Mensual", 0, 300, 125, key="f1_horas_sim")
@@ -44,7 +43,7 @@ if seccion == "Automovilismo (F1)":
 
         if st.button("🚀 Ejecutar Predicción F1"):
             try:
-                # 1. Construcción inicial de las variables
+                # 1. Construcción exacta de las 7 variables esperadas por el modelo de Colab
                 input_data = pd.DataFrame({
                     'Horas_Practica_Mensual': [horas_sim_mensual],
                     'Consistencia_Ritmo_0a100': [consistencia],
@@ -55,18 +54,20 @@ if seccion == "Automovilismo (F1)":
                     'Categoria_Actual_F3': [1 if categoria_actual == "F3" else 0]
                 })
                 
-                # 2. Reordenamiento estricto según las características del modelo
+                # 2. Reordenamiento estricto según la firma de características del fit
                 if hasattr(modelo_f1, "feature_names_in_"):
                     input_data = input_data[modelo_f1.feature_names_in_]
 
-                # Depuración visual: muestra qué datos exactos procesó el modelo
-                st.write("🔍 **Datos enviados al modelo:**", input_data)
-
                 pred = modelo_f1.predict(input_data)
-                resultado_pred = pred[0]
+                resultado_pred = float(pred[0])
                 
-                st.success(f"✅ Predicción de rendimiento F1 procesada con éxito.")
-                st.info(f"⏱️ Resultado del modelo: {resultado_pred}")
+                st.success("✅ Predicción de rendimiento F1 procesada con éxito.")
+                st.metric(label="⏱️ Score / Rendimiento Estimado", value=f"{resultado_pred:.2f}")
+
+                # Celebración si el rendimiento supera el umbral de élite
+                if resultado_pred >= 85.0:
+                    st.balloons()
+                    st.success("🌟 ¡PROSPECTO DE ÉLITE EN AUTOMOVILISMO DETECTADO!")
 
                 # Actualización automática y dinámica del Dataset Maestro (CSV)
                 archivo_csv = "datos_maestros_plataforma.csv"
@@ -76,7 +77,7 @@ if seccion == "Automovilismo (F1)":
                     'Gestion_Neumaticos_0a100': gestion_neumaticos,
                     'Tiempo_Reaccion_ms': tiempo_reaccion,
                     'Categoria_Actual': categoria_actual,
-                    'Prediccion': resultado_pred
+                    'Prediccion': round(resultado_pred, 2)
                 }
                 
                 if os.path.exists(archivo_csv):

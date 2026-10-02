@@ -3,6 +3,8 @@ import pandas as pd
 import joblib
 import os
 import numpy as np
+import sklearn
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 
 st.set_page_config(page_title="Portal Unificado de Scouting IA", page_icon="🌐", layout="centered")
 
